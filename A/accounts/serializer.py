@@ -17,6 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
         if password and passwrod2:
              if password != passwrod2:
                   raise serializers.ValidationError('passwords must match')
+        attrs.pop('password2', None)
         return attrs
     
 
