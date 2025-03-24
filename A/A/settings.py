@@ -1,8 +1,11 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -30,11 +33,13 @@ INSTALLED_APPS = [
     #local
     'menu.apps.MenuConfig',
     'accounts.apps.AccountsConfig',
-    'home.apps.HomeConfig',
+
 
     #Third party
     'rest_framework',
     'rest_framework.authtoken',
+    'storages',
+    'celery',
 ]
 
 MIDDLEWARE = [
@@ -76,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'qrmenu',
         'USER':'s.parizadi',
-        'PASSWORD': '234711',
+        'PASSWORD': os.getenv("POSTGRESQL_PASSWORD"),
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
@@ -126,6 +131,41 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# AWS Config
+
+LIARA_ENDPOINT    = os.getenv("LIARA_ENDPOINT")
+LIARA_BUCKET_NAME = os.getenv("LIARA_BUCKET_NAME")
+LIARA_ACCESS_KEY  = os.getenv("LIARA_ACCESS_KEY")
+LIARA_SECRET_KEY  = os.getenv("LIARA_SECRET_KEY")
+
+AWS_ACCESS_KEY_ID       = LIARA_ACCESS_KEY
+AWS_SECRET_ACCESS_KEY   = LIARA_SECRET_KEY
+AWS_STORAGE_BUCKET_NAME = LIARA_BUCKET_NAME
+AWS_S3_ENDPOINT_URL     = LIARA_ENDPOINT
+AWS_S3_REGION_NAME      = 'us-east-1'
+AWS_SERVICE_NAME        = 's3'  
+AWS_LOCAL_STORAGE       = f"{BASE_DIR}/aws/"
+
+STORAGES = {
+  "default": {
+      "BACKEND": "storages.backends.s3.S3Storage",
+  },
+  "staticfiles": {
+      "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+  },
+}
+
+# CELERY
+
+CELERY_BROKER_URL        = 'amqp://'
+CELERY_RESULT_BACKEND    = 'rpc://'
+CELERY_TASK_SERIALIZER   = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT    = ['json']
+
+
+
+
 # Authentications 
 AUTHENTICATION_BACKENDS = [
         'accounts.authentication.PhoneNumberLogin',
@@ -140,3 +180,5 @@ REST_FRAMEWORK = {
     ],
 
 }
+
+
