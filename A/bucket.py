@@ -3,7 +3,7 @@ import boto3.session
 from django.conf import settings
 
 
-class bucket:
+class Bucket:
 
     def __init__(self):
         session = boto3.session.Session()
@@ -13,5 +13,17 @@ class bucket:
             aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY,
             endpoint_url = settings.AWS_S3_ENDPOINT_URL
         )
+    def get_all_objects(self):
+        result = self.connection.list_objects_v2(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
+        if result['KeyCount']:
+            return result['Contents']
+        return None
+    
 
+    def delete_object(self, key):
+         self.connection.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=key)
+         return True
+
+
+bucket = Bucket()
         
